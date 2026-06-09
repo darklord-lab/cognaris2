@@ -323,6 +323,14 @@
     grid-template-columns: 1fr;
     gap: var(--space-8);
   }
+  .mv-core__grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+  }
+  .mv-values__grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+  }
   .team__grid {
     grid-template-columns: 1fr;
   }

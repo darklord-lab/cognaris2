@@ -203,3 +203,10 @@
     gap: var(--space-3);
   }
 }
+
+@media (max-width: 480px) {
+  .footer__top {
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+  }
+}
