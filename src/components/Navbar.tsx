@@ -7,9 +7,6 @@ const LINKS = [
   { label: 'Features',         href: '#features'        },
   { label: 'How It Works',     href: '#how-it-works'    },
   { label: 'Pricing',          href: '#pricing'         },
-  { label: 'About',            href: 'about'            },
-  { label: 'Blogs',            href: 'blogs'            },
-  { label: 'Careers',          href: 'careers'          },
 ]
 
 interface NavbarProps {
