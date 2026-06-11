@@ -7,8 +7,9 @@
   pointer-events: none;
   z-index: 9999;
   will-change: transform;
-  mix-blend-mode: difference;
 }
+
+/* ── Dark Mode (Default) ── */
 
 /* Dot */
 .cursor-dot {
@@ -31,7 +32,7 @@
 /* Ring */
 .cursor-ring {
   width: 36px; height: 36px;
-  border: 1.5px solid rgba(255,255,255,0.5);
+  border: 1.5px solid rgba(255,255,255,0.45);
   background: transparent;
   transition: width 0.3s ease, height 0.3s ease,
               border-color 0.3s ease, opacity 0.3s ease;
@@ -46,6 +47,32 @@
   width: 64px; height: 64px;
   border-color: rgba(0,212,255,0.35);
   background: rgba(0,212,255,0.04);
+}
+
+/* ── Light Mode Overrides ── */
+html[data-theme='light'] .cursor-dot {
+  background: #0c0c12;
+}
+
+html[data-theme='light'] .cursor-dot--hover {
+  background: #008fae;
+}
+
+html[data-theme='light'] .cursor-dot--btn {
+  background: #0c0c12;
+}
+
+html[data-theme='light'] .cursor-ring {
+  border-color: rgba(12, 12, 18, 0.25);
+}
+
+html[data-theme='light'] .cursor-ring--hover {
+  border-color: rgba(0, 143, 174, 0.5);
+}
+
+html[data-theme='light'] .cursor-ring--btn {
+  border-color: rgba(0, 143, 174, 0.4);
+  background: rgba(0, 143, 174, 0.05);
 }
 
 /* Hide on touch/mobile */
