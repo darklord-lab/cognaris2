@@ -16,6 +16,7 @@ const Privacy       = lazy(() => import('./components/Privacy'))
 const Careers       = lazy(() => import('./components/Careers'))
 const Blogs         = lazy(() => import('./components/Blogs'))
 const Changelog     = lazy(() => import('./components/Changelog'))
+const Demo          = lazy(() => import('./components/Demo'))
 
 /* ── SVG Logo ── */
 const Logo = memo(function Logo({ size = 28 }: { size?: number }) {
@@ -78,11 +79,28 @@ const Loader = memo(function Loader({ onDone }: { onDone: () => void }) {
 
 const App = memo(function App() {
   const [loading, setLoading] = useState(true)
-  const [view, setView] = useState<'home' | 'about' | 'privacy' | 'careers' | 'blogs' | 'changelog'>('home')
+  const [view, setView] = useState<'home' | 'about' | 'privacy' | 'careers' | 'blogs' | 'changelog' | 'demo'>('home')
   const [selectedPostId, setSelectedPostId] = useState<number | null>(null)
 
+  const [theme, setTheme] = useState<'dark' | 'light'>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('theme')
+      if (saved === 'dark' || saved === 'light') return saved
+    }
+    return 'dark'
+  })
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme)
+    localStorage.setItem('theme', theme)
+  }, [theme])
+
+  const toggleTheme = useCallback(() => {
+    setTheme(prev => prev === 'dark' ? 'light' : 'dark')
+  }, [])
+
   const handleDone = useCallback(() => setLoading(false), [])
-  const handleSetView = useCallback((newView: 'home' | 'about' | 'privacy' | 'careers' | 'blogs' | 'changelog') => {
+  const handleSetView = useCallback((newView: 'home' | 'about' | 'privacy' | 'careers' | 'blogs' | 'changelog' | 'demo') => {
     setView(newView)
     setSelectedPostId(null)
   }, [])
@@ -106,11 +124,11 @@ const App = memo(function App() {
       </AnimatePresence>
 
       {/* WebGL stays pinned to background */}
-      <WebGLBackground />
+      <WebGLBackground theme={theme} />
 
       {/* All page content sits above WebGL */}
       <div className="page">
-        <Navbar logo={<Logo />} currentView={view} setView={handleSetView} />
+        <Navbar logo={<Logo />} currentView={view} setView={handleSetView} theme={theme} toggleTheme={toggleTheme} />
         <main style={{ minHeight: 'calc(100vh - 200px)', position: 'relative' }}>
           <AnimatePresence mode="wait">
             {view === 'home' && (
@@ -121,7 +139,7 @@ const App = memo(function App() {
                 exit={{ opacity: 0, y: -15 }}
                 transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
               >
-                <Hero />
+                <Hero setView={handleSetView} />
                 <Suspense fallback={null}>
                   <Services />
                   <Features />
@@ -192,6 +210,19 @@ const App = memo(function App() {
               >
                 <Suspense fallback={null}>
                   <Changelog />
+                </Suspense>
+              </motion.div>
+            )}
+            {view === 'demo' && (
+              <motion.div
+                key="demo"
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -15 }}
+                transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+              >
+                <Suspense fallback={null}>
+                  <Demo setView={handleSetView} />
                 </Suspense>
               </motion.div>
             )}

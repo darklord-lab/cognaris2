@@ -99,7 +99,7 @@ function useGlobalEvents() {
 }
 
 // ── Particle Field ──
-const ParticleField = memo(function ParticleField({ data, size }: { data: ParticleData; size: number }) {
+const ParticleField = memo(function ParticleField({ data, size, theme }: { data: ParticleData; size: number; theme: 'dark' | 'light' }) {
   const meshRef = useRef<THREE.Points>(null!)
 
   // Copy positions so mutations don't affect the original
@@ -124,8 +124,12 @@ const ParticleField = memo(function ParticleField({ data, size }: { data: Partic
       if (pos[i * 3 + 1] > 7) pos[i * 3 + 1] = -7
     }
     pts.geometry.attributes.position.needsUpdate = true
-    pts.rotation.x += (state.mouse.y * 0.05 - pts.rotation.x) * 0.03
-    pts.rotation.y += (state.mouse.x * 0.06 - pts.rotation.y) * 0.03
+    const targetX = state.mouse.y * 0.15 + t * 0.02
+    const targetY = state.mouse.x * 0.15 + t * 0.03
+    const targetZ = t * 0.015
+    pts.rotation.x += (targetX - pts.rotation.x) * 0.03
+    pts.rotation.y += (targetY - pts.rotation.y) * 0.03
+    pts.rotation.z += (targetZ - pts.rotation.z) * 0.03
     pts.position.y += (state.scroll * -1.5 - pts.position.y) * 0.025
   })
 
@@ -133,19 +137,19 @@ const ParticleField = memo(function ParticleField({ data, size }: { data: Partic
     <points ref={meshRef} geometry={geo}>
       <pointsMaterial
         size={size}
-        color="#00d4ff"
+        color={theme === 'light' ? '#00a7cc' : '#00d4ff'}
         transparent
-        opacity={0.55}
+        opacity={theme === 'light' ? 0.65 : 0.55}
         sizeAttenuation={false}
         depthWrite={false}
-        blending={THREE.AdditiveBlending}
+        blending={theme === 'light' ? THREE.NormalBlending : THREE.AdditiveBlending}
       />
     </points>
   )
 })
 
 // ── Network Lines ──
-const NetworkLines = memo(function NetworkLines({ data }: { data: NetworkData }) {
+const NetworkLines = memo(function NetworkLines({ data, theme }: { data: NetworkData; theme: 'dark' | 'light' }) {
   const ref = useRef<THREE.LineSegments>(null!)
 
   const geo = useMemo(() => {
@@ -157,27 +161,30 @@ const NetworkLines = memo(function NetworkLines({ data }: { data: NetworkData })
   useFrame(({ clock }) => {
     if (!ref.current) return
     const t = clock.getElapsedTime()
-    ref.current.rotation.y = t * 0.014 + state.mouse.x * 0.06
-    ref.current.rotation.x = state.mouse.y * 0.04
-    ref.current.rotation.z = t * 0.004
+    const targetX = state.mouse.y * 0.12 + t * 0.015
+    const targetY = state.mouse.x * 0.12 + t * 0.02
+    const targetZ = t * 0.01
+    ref.current.rotation.x += (targetX - ref.current.rotation.x) * 0.03
+    ref.current.rotation.y += (targetY - ref.current.rotation.y) * 0.03
+    ref.current.rotation.z += (targetZ - ref.current.rotation.z) * 0.03
     ref.current.position.y += (state.scroll * -2 - ref.current.position.y) * 0.02
   })
 
   return (
     <lineSegments ref={ref} geometry={geo}>
       <lineBasicMaterial
-        color="#6b5ce7"
+        color={theme === 'light' ? '#5544d6' : '#6b5ce7'}
         transparent
-        opacity={0.12}
+        opacity={theme === 'light' ? 0.18 : 0.12}
         depthWrite={false}
-        blending={THREE.AdditiveBlending}
+        blending={theme === 'light' ? THREE.NormalBlending : THREE.AdditiveBlending}
       />
     </lineSegments>
   )
 })
 
 // ── Liquid Sphere ──
-const LiquidSphere = memo(function LiquidSphere() {
+const LiquidSphere = memo(function LiquidSphere({ theme }: { theme: 'dark' | 'light' }) {
   const meshRef = useRef<THREE.Mesh>(null!)
   const matRef  = useRef<THREE.ShaderMaterial>(null!)
 
@@ -241,7 +248,13 @@ const LiquidSphere = memo(function LiquidSphere() {
   useFrame(({ clock }) => {
     if (matRef.current)  matRef.current.uniforms.uTime.value = clock.getElapsedTime()
     if (meshRef.current) {
-      meshRef.current.rotation.y += 0.003
+      const t = clock.getElapsedTime()
+      const targetX = state.mouse.y * 0.2 + t * 0.025
+      const targetY = state.mouse.x * 0.2 + t * 0.035
+      const targetZ = t * 0.015
+      meshRef.current.rotation.x += (targetX - meshRef.current.rotation.x) * 0.03
+      meshRef.current.rotation.y += (targetY - meshRef.current.rotation.y) * 0.03
+      meshRef.current.rotation.z += (targetZ - meshRef.current.rotation.z) * 0.03
       meshRef.current.position.x += (state.mouse.x * 2.0 - meshRef.current.position.x) * 0.025
       meshRef.current.position.y += (state.mouse.y * 1.2 - meshRef.current.position.y) * 0.025
       meshRef.current.position.z += (state.scroll * -4  - meshRef.current.position.z)  * 0.03
@@ -259,7 +272,7 @@ const LiquidSphere = memo(function LiquidSphere() {
         transparent
         side={THREE.DoubleSide}
         depthWrite={false}
-        blending={THREE.AdditiveBlending}
+        blending={theme === 'light' ? THREE.NormalBlending : THREE.AdditiveBlending}
       />
     </mesh>
   )
@@ -304,24 +317,25 @@ const PerformanceController = memo(function PerformanceController({ dpr, canvasS
 })
 
 // ── Scene ──
-const Scene = memo(function Scene({ particleData, networkData, particleSize }: {
+const Scene = memo(function Scene({ particleData, networkData, particleSize, theme }: {
   particleData: ParticleData
   networkData: NetworkData
   particleSize: number
+  theme: 'dark' | 'light'
 }) {
   useGlobalEvents()
   return (
     <>
       <ambientLight intensity={0.1} />
-      <ParticleField data={particleData} size={particleSize} />
-      <NetworkLines data={networkData} />
-      <LiquidSphere />
+      <ParticleField data={particleData} size={particleSize} theme={theme} />
+      <NetworkLines data={networkData} theme={theme} />
+      <LiquidSphere theme={theme} />
     </>
   )
 })
 
 // ── Export ──
-const WebGLBackground = memo(function WebGLBackground() {
+const WebGLBackground = memo(function WebGLBackground({ theme = 'dark' }: { theme?: 'dark' | 'light' }) {
   const isLowEnd = useMemo(() => {
     if (typeof window === 'undefined') return true
     return navigator.hardwareConcurrency <= 4
@@ -357,6 +371,7 @@ const WebGLBackground = memo(function WebGLBackground() {
           particleData={particleData}
           networkData={networkData}
           particleSize={settings.particleSize}
+          theme={theme}
         />
       </Canvas>
     </div>

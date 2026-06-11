@@ -2,10 +2,30 @@ import { memo, useRef } from 'react'
 import { motion, useInView } from 'framer-motion'
 import './Footer.css'
 
-const LINKS = {
-  Product:  ['Features', 'Pricing', 'Changelog', 'Roadmap'],
-  Company:  ['About', 'Mission & Vision', 'Careers', 'Blogs'],
-  Legal:    ['Privacy', 'Terms', 'Security', 'Cookies'],
+interface FooterLink {
+  name: string
+  badge?: string
+}
+
+const LINKS: Record<string, FooterLink[]> = {
+  Product: [
+    { name: 'Features' },
+    { name: 'Pricing' },
+    { name: 'Changelog' },
+    { name: 'Roadmap' },
+  ],
+  Company: [
+    { name: 'About' },
+    { name: 'Mission & Vision' },
+    { name: 'Careers' },
+    { name: 'Blogs' },
+  ],
+  Legal: [
+    { name: 'Privacy' },
+    { name: 'Terms' },
+    { name: 'Security' },
+    { name: 'Cookies' },
+  ],
 }
 
 interface FooterProps {
@@ -167,7 +187,7 @@ const Footer = memo(function Footer({ logo, setView }: FooterProps) {
               <span className="footer__col-title">{title}</span>
               {links.map((link, i) => (
                 <motion.a
-                  key={link}
+                  key={link.name}
                   href="#"
                   className="footer__link"
                   initial={{ opacity: 0, x: -8 }}
@@ -178,9 +198,14 @@ const Footer = memo(function Footer({ logo, setView }: FooterProps) {
                     ease: [0.16, 1, 0.3, 1],
                   }}
                   whileHover={{ x: 4, color: 'var(--c-white)' }}
-                  onClick={e => handleFooterLink(link, e)}
+                  onClick={e => handleFooterLink(link.name, e)}
                 >
-                  {link}
+                  <span className="footer__link-text">{link.name}</span>
+                  {link.badge && (
+                    <span className={`footer__badge footer__badge--${link.badge.toLowerCase()}`}>
+                      {link.badge}
+                    </span>
+                  )}
                 </motion.a>
               ))}
             </motion.div>

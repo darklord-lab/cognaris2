@@ -22,7 +22,11 @@ const AVATARS = [
   'https://randomuser.me/api/portraits/men/75.jpg',
 ]
 
-const Hero = memo(function Hero() {
+interface HeroProps {
+  setView: (view: 'home' | 'about' | 'privacy' | 'careers' | 'blogs' | 'changelog' | 'demo') => void
+}
+
+const Hero = memo(function Hero({ setView }: HeroProps) {
   const sectionRef = useRef<HTMLElement>(null)
   const [wordIdx, setWordIdx] = useState(0)
 
@@ -179,8 +183,13 @@ const Hero = memo(function Hero() {
             variants={itemUp}
           >
             <motion.a
-              href="#pricing"
+              href="#demo"
               className="btn-primary hero__cta-primary"
+              onClick={e => {
+                e.preventDefault()
+                setView('demo')
+                window.scrollTo({ top: 0, behavior: 'smooth' })
+              }}
               whileHover={{
                 scale: 1.04,
                 boxShadow: '0 0 40px rgba(0,212,255,0.35), 0 8px 32px rgba(0,212,255,0.2)',
